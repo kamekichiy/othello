@@ -30,7 +30,7 @@ class Board:
 
         record list 棋譜を記録する
         moves int 何手目なのか
-        position list ボードの各位置の状態
+        area list ボードの各位置の状態
                 0 空
                 1 黒の石がある
                 2 白の石がある
@@ -164,7 +164,8 @@ class Board:
         else:       #変な値を指定してきたらカラっぽ返す
             return putableList
 
-        """差分の一つ目、つまりdirectionで指定した隣の色を判定し、対戦相手の色なら先に行く
+        """差分の一つ目、つまりdirectionで指定した方向にある隣の色を判定し、
+            対戦相手の色なら先に行く
             それ以外なのならカラッポのリストを応答して終わり"""
         for i in range(1,8):
 
@@ -186,14 +187,33 @@ class Board:
 
     def decision_winner(self):
         """黒と白のどちらが勝ったのか判定する。
+        実際に石の数を数えて、その結果を応答する。
         ゲームが終わっているかどうかは関係なく。石の多いほうを応答する。
 
         Returns
         -------
         int
-            1 黒の勝ち, 2 白の勝ち
+            1 黒の勝ち, 2 白の勝ち, 0 引き分け
         """
-        pass
+        b = 0
+        w = 0
+
+        for i in range(100):
+            if self.area[i] == 1:
+                b += 1
+            elif self.area[i] == 2:
+                w += 1
+            else:
+                continue
+
+        if b > w:
+            return 1
+        elif b < q:
+            return 2
+        else:
+            return 0
+
+
 
     def decision_color(self, color):
         """パラメータで指定した石が置ける場所はあるのか(パスなのか)判定する。
@@ -432,7 +452,8 @@ def game_loop(player1, player2):
                 if board.decision_color(white):
                     continue
                 else:
-                    game_over()
+                    game_over(board.decision_winner())
+                    break
             turn = white
         else:
             if board.decision_color(white):
@@ -445,12 +466,29 @@ def game_loop(player1, player2):
                 if board.decision_color(black):
                     continue
                 else:
-                    game_over()
+                    game_over(board.decision_winner())
+                    break
             turn = black
 
-def game_over():
+def game_over(winner):
+    """ゲームオーバーになったときの出力を行う関数。
+
+    Parameters
+    ----------
+    winner int
+        1 黒の勝ち, 2 白の勝ち, 0 引き分け
+        （Boardクラスのdecision_winner()の結果を、まま設定する想定。）
+    Returns none
+    -------
+
+    """
     print("GameOver")
-    exit()
+    if winner  ==  0:
+        print("この勝負、引き分け！")
+    else:
+        print("勝者は %s です！" % getStone(winner))
+
+
 
 def player_call(s):
 
@@ -479,7 +517,8 @@ def start():
         player1, player2 = player_call(mode)
         game_loop(player1, player2)
     else:
-        exit()
+        print("オセロを終了します...")
+    exit()
 
 
 def main():
